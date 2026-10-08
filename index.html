@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EstudioPro | Creador de Pulseras Interactivo</title>
+
+    <!-- Tailwind Custom Configuration (Pre-configured before CDN) -->
+    <script>
+        window.tailwind = window.tailwind || {};
+        window.tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                        display: ['Fredoka', 'sans-serif']
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- html2canvas for High Resolution Canvas Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- Google Fonts: Nunito & Fredoka -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- 
+      SI DESEAS USAR UN ARCHIVO EXTERNO PARA ENTORNO LOCAL:
+      <link rel="stylesheet" href="styles.css">
+    -->
+
+    <style>
+        /* ==========================================================================
+           ARCHIVO: styles.css
+           ========================================================================== */
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f879e3;
+        }
+
+        h1, h2, h3, .font-display {
+            font-family: 'Fredoka', sans-serif;
+            color: #e6cbc9;
+        }
+
+        span {
+            color: #e6cbc9;
+;
+        }
+
+        label{
+            color: #e6cbc9;
+        }
+
+        p{
+            color: #e6cbc9;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { 
+            width: 8px; 
+            height: 8px; 
+        }
+        ::-webkit-scrollbar-track { 
+            background: #0f172a; 
+        }
+        ::-webkit-scrollbar-thumb { 
+            background: #334155; 
+            border-radius: 999px; 
+        }
+        ::-webkit-scrollbar-thumb:hover { 
+            background: #475569; 
+        }
+
+        /* Glassmorphic Cards */
+        .glass-card {
+            background: rgba(248, 0, 124, 0.75);
+            backdrop-filter: blur(16px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.4);
+        }
+
+        .glass-card-light {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Bubbly Interactive Buttons */
+        .btn-bubbly {
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .btn-bubbly:hover {
+            transform: translateY(-2px) scale(1.02);
+        }
+        .btn-bubbly:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        /* Swatches and Grid Options */
+        .swatch-item {
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+        }
+        .swatch-item:hover {
+            transform: scale(1.08);
+        }
+        .swatch-item.active {
+            transform: scale(1.12);
+            box-shadow: 0 0 0 4px #6366f1, 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Range Input Styling */
+        input[type=range] {
+            appearance: none;
+            -webkit-appearance: none;
+            background: transparent;
+            width: 100%;
+        }
+        input[type=range]:focus { 
+            outline: none; 
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 12px;
+            cursor: pointer;
+            background: #334155;
+            border-radius: 999px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 28px;
+            width: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -8px;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.8);
+            border: 3px solid #ffffff;
+            transition: transform 0.15s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* SVG Bracelet Canvas responsiveness */
+        .bracelet-svg {
+            width: 100%;
+            height: auto;
+            max-height: 520px;
+            display: block;
+            margin: 0 auto;
+            filter: drop-shadow(0 20px 25px rgba(0,0,0,0.35));
+            transition: all 0.4s ease;
+        }
+
+        /* Toast Popup Styles */
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast {
+            pointer-events: auto;
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 14px 20px;
+            border-radius: 18px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            opacity: 0;
+            transform: translateY(20px) scale(0.9);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .canvas-dark {
+            background-color: #0f172a;
+            border-color: rgba(30, 41, 59, 0.8);
+        }
+        .canvas-light {
+            background-color: #f8fafc;
+            border-color: #e2e8f0;
+        }
+        .bg-grid-dark {
+            background-image: radial-gradient(#334155 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+            opacity: 0.4;
+        }
+        .bg-grid-light {
+            background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-100 bg-slate-950 flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+
+    <header class="border-b-2 border-slate-800 bg-slate-900/90 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 p-[3px] shadow-lg shadow-indigo-500/30 btn-bubbly">
+                    <div class="w-full h-full bg-slate-950 rounded-[13px] flex items-center justify-center">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-400 text-xl animate-bounce"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-wide text-white flex items-center gap-2">
+                        Estudio<span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">Pro</span>
+                        <span class="text-xs px-2.5 py-0.5 rounded-full bg-pink-500/20 border border-pink-500/40 text-pink-300 font-bold hidden sm:inline-block">Pulseras ✨</span>
+                    </h1>
+                    <p class="text-xs text-slate-400 font-semibold hidden md:block">Diseña tu pulsera ideal paso a paso de forma divertida</p>
+                </div>
+            </div>
+
+            <!-- Header Actions -->
+            <div class="flex items-center gap-3">
+                <button id="btn-reset-all" title="Reiniciar Diseño" class="btn-bubbly px-4 py-2.5 rounded-2xl text-xs font-extrabold bg-slate-800 hover:bg-slate-700 text-slate-200 border-2 border-slate-700/80 shadow-md flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-left text-amber-400 text-sm"></i>
+                    <span class="hidden sm:inline">Empezar de Nuevo</span>
+                </button>
+                <div class="h-6 w-[2px] bg-slate-800 hidden sm:block"></div>
+                <div class="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-emerald-500/10 border-2 border-emerald-500/30 text-emerald-400 text-xs font-extrabold">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    Estudio En Vivo
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+            <!-- LEFT CONTROL PANEL (5 cols) -->
+            <div class="lg:col-span-5 flex flex-col gap-5">
+
+                <!-- PASO 1: MODO Y OBJETIVO -->
+                <div class="glass-card rounded-3xl p-5 relative overflow-hidden">
+                    <div class="flex items-center justify-between mb-3">
+                        <label class="text-xs font-extrabold uppercase tracking-wider text-indigo-300 flex items-center gap-2 font-display">
+                            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">1</span>
+                            ¿Para quién es la pulsera?
+                        </label>
+                    </div>
+
+                    <!-- Single vs Couple Segmented Pill -->
+                    <div class="grid grid-cols-2 gap-2 p-1.5 bg-slate-900/90 rounded-2xl border border-slate-800">
+                        <button id="btn-mode-single" class="btn-bubbly py-3 px-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-lg shadow-indigo-600/30">
+                            <i class="fa-solid fa-user text-sm"></i>
+                            <span>1 Pulsera</span>
+                        </button>
+                        <button id="btn-mode-couple" class="btn-bubbly py-3 px-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 text-slate-400 hover:text-white">
+                            <i class="fa-solid fa-heart text-sm text-pink-400 animate-pulse"></i>
+                            <span>Juego Parejas</span>
+                        </button>
+                    </div>
+
+                    <!-- Target Selection Cards (Couple Mode) -->
+                    <div id="target-select-container" class="hidden flex-col gap-2.5 mt-4 pt-4 border-t border-slate-800/80">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-hand-pointer text-amber-400"></i> Selecciona cuál vas a personalizar:
+                            </span>
+                            <span id="target-indicator-badge" class="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
+                                Editando Ambas
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button data-target="both" class="target-btn btn-bubbly active py-2.5 px-2 rounded-xl border-2 text-xs font-extrabold flex flex-col items-center gap-1 bg-indigo-600/20 border-indigo-500 text-white shadow-md">
+                                <i class="fa-solid fa-users text-indigo-400 text-base"></i>
+                                <span>Ambas</span>
+                            </button>
+                            <button data-target="1" class="target-btn btn-bubbly py-2.5 px-2 rounded-xl border-2 text-xs font-extrabold flex flex-col items-center gap-1 bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700">
+                                <i class="fa-solid fa-1 text-sky-400 text-base"></i>
+                                <span>Pulsera 1</span>
+                            </button>
+                            <button data-target="2" class="target-btn btn-bubbly py-2.5 px-2 rounded-xl border-2 text-xs font-extrabold flex flex-col items-center gap-1 bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700">
+                                <i class="fa-solid fa-2 text-pink-400 text-base"></i>
+                                <span>Pulsera 2</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASO 2: ESTILO Y PEPITAS -->
+                <div class="glass-card rounded-3xl p-5 flex flex-col gap-5">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-extrabold uppercase tracking-wider text-indigo-300 flex items-center gap-2 font-display">
+                            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">2</span>
+                            Estilo y Cuentas / Pepitas
+                        </label>
+                    </div>
+
+                    <!-- Style Toggle Buttons -->
+                    <div class="grid grid-cols-3 gap-2">
+                        <button id="btn-style-pepitas" class="btn-bubbly py-3 px-1 rounded-2xl border-2 font-extrabold flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-600/25">
+                            <i class="fa-solid fa-circle-dot text-amber-300 text-sm"></i>
+                            <span class="text-[11px] sm:text-xs">Pepitas</span>
+                        </button>
+                        <button id="btn-style-hilo" class="btn-bubbly py-3 px-1 rounded-2xl border-2 font-extrabold flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white">
+                            <i class="fa-solid fa-minus text-purple-400 text-sm"></i>
+                            <span class="text-[11px] sm:text-xs">Hilo Liso</span>
+                        </button>
+                        <button id="btn-style-tejido" class="btn-bubbly py-3 px-1 rounded-2xl border-2 font-extrabold flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white">
+                            <i class="fa-solid fa-braille text-emerald-400 text-sm"></i>
+                            <span class="text-[11px] sm:text-xs">Hilo Tejido</span>
+                        </button>
+                    </div>
+
+                    <!-- Beads Controls Group -->
+                    <div id="beads-controls" class="flex flex-col gap-4">
+
+                        <!-- Quantity Slider with Quick Buttons -->
+                        <div class="flex flex-col gap-2.5 bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-extrabold text-slate-200">Cantidad de Pepitas</span>
+                                <div class="flex items-center gap-2">
+                                    <button id="btn-count-minus" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-extrabold flex items-center justify-center text-sm border border-slate-700 btn-bubbly">-</button>
+                                    <span id="badge-cantidad" class="text-sm font-extrabold px-3 py-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md">14</span>
+                                    <button id="btn-count-plus" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-extrabold flex items-center justify-center text-sm border border-slate-700 btn-bubbly">+</button>
+                                </div>
+                            </div>
+                            <input type="range" id="slider-cantidad" min="0" max="28" value="14" step="2" class="cursor-pointer">
+                            <div class="flex justify-between text-[10px] text-slate-400 font-bold px-1">
+                                <span>0 Mín.</span>
+                                <span>14 Estándar</span>
+                                <span>28 Máx.</span>
+                            </div>
+                        </div>
+
+                        <!-- Spacing Option -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-xs font-bold text-slate-300">Distribución de las cuentas:</label>
+                            <select id="select-espaciado" class="w-full px-3.5 py-3 rounded-2xl bg-slate-900 border-2 border-slate-800 text-slate-100 font-bold text-xs focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer">
+                                <option value="unidas">Pepitas Seguidas (Juntas)</option>
+                                <option value="separadas">Separadas con Nudos de Hilo</option>
+                                <option value="balines" selected>Separadas con Balines Metálicos</option>
+                            </select>
+                        </div>
+
+                        <!-- Material Visual Swatches -->
+                        <div class="flex flex-col gap-2.5">
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs font-bold text-slate-300">Material de las Pepitas:</label>
+                                <span id="material-name-lbl" class="text-xs font-extrabold text-amber-400">Piedra Volcánica</span>
+                            </div>
+
+                            <div class="grid grid-cols-6 gap-2" id="swatches-material">
+                                <button data-mat="lava" title="Piedra Volcánica (Mate)" class="swatch-item mat-btn active h-12 rounded-2xl border-2 border-slate-700 flex items-center justify-center bg-gradient-to-br from-zinc-700 to-zinc-950">
+                                    <span class="w-5 h-5 rounded-full bg-zinc-800 border border-zinc-600 shadow-inner"></span>
+                                </button>
+                                <button data-mat="agate" title="Ágata Neopreno (Rojo Brillante)" class="swatch-item mat-btn h-12 rounded-2xl border-2 border-slate-700 flex items-center justify-center bg-gradient-to-br from-red-500 to-red-950">
+                                    <span class="w-5 h-5 rounded-full bg-red-600 border border-red-400 shadow-inner"></span>
+                                </button>
+                                <button data-mat="wood" title="Madera Pulida" class="swatch-item mat-btn h-12 rounded-2xl border-2 border-slate-700 flex items-center justify-center bg-gradient-to-br from-amber-600 to-amber-950">
+                                    <span class="w-5 h-5 rounded-full bg-amber-700 border border-amber-500 shadow-inner"></span>
+                                </button>
+                                <button data-mat="turquoise" title="Turquesa Mística" class="swatch-item mat-btn h-12 rounded-2xl border-2 border-slate-700 flex items-center justify-center bg-gradient-to-br from-cyan-400 to-cyan-800">
+                                    <span class="w-5 h-5 rounded-full bg-cyan-400 border border-cyan-200 shadow-inner"></span>
+                                </button>
+                                <button data-mat="gold" title="Oro 18K" class="swatch-item mat-btn h-12 rounded-2xl border-2 border-slate-700 flex items-center justify-center bg-gradient-to-br from-yellow-300 to-amber-700">
+                                    <span class="w-5 h-5 rounded-full bg-yellow-400 border border-yellow-200 shadow-inner"></span>
+                                </button>
+                                <button data-mat="silver" title="Plata Ley 925" class="swatch-item mat-btn h-12 rounded-2xl border-2 border-slate-700 flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-600">
+                                    <span class="w-5 h-5 rounded-full bg-slate-200 border border-white shadow-inner"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- PASO 3: DIJE O AMULETO CENTRAL -->
+                <div class="glass-card rounded-3xl p-5 flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-extrabold uppercase tracking-wider text-indigo-300 flex items-center gap-2 font-display">
+                            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">3</span>
+                            Dije o Símbolo Central
+                        </label>
+                    </div>
+
+                    <!-- Visual Charm Selector Grid -->
+                    <div class="grid grid-cols-4 gap-2" id="grid-charms">
+                        <button data-charm="moneda" class="charm-btn btn-bubbly active p-2.5 rounded-2xl border-2 border-indigo-500 bg-indigo-600/20 flex flex-col items-center gap-1 text-center">
+                            <span class="text-xl">🪙</span>
+                            <span class="text-[11px] font-extrabold text-white">Medalla</span>
+                        </button>
+                        <button data-charm="corazon" class="charm-btn btn-bubbly p-2.5 rounded-2xl border-2 border-slate-800 bg-slate-900/60 hover:border-slate-700 flex flex-col items-center gap-1 text-center">
+                            <span class="text-xl">💕</span>
+                            <span class="text-[11px] font-extrabold text-slate-300">Corazón</span>
+                        </button>
+                        <button data-charm="cruz" class="charm-btn btn-bubbly p-2.5 rounded-2xl border-2 border-slate-800 bg-slate-900/60 hover:border-slate-700 flex flex-col items-center gap-1 text-center">
+                            <span class="text-xl">✝️</span>
+                            <span class="text-[11px] font-extrabold text-slate-300">Cruz</span>
+                        </button>
+                        <button data-charm="estrella" class="charm-btn btn-bubbly p-2.5 rounded-2xl border-2 border-slate-800 bg-slate-900/60 hover:border-slate-700 flex flex-col items-center gap-1 text-center">
+                            <span class="text-xl">⭐</span>
+                            <span class="text-[11px] font-extrabold text-slate-300">Estrella</span>
+                        </button>
+                        <button data-charm="infinito" class="charm-btn btn-bubbly p-2.5 rounded-2xl border-2 border-slate-800 bg-slate-900/60 hover:border-slate-700 flex flex-col items-center gap-1 text-center">
+                            <span class="text-xl">♾️</span>
+                            <span class="text-[11px] font-extrabold text-slate-300">Infinito</span>
+                        </button>
+                        <button data-charm="trebol" class="charm-btn btn-bubbly p-2.5 rounded-2xl border-2 border-slate-800 bg-slate-900/60 hover:border-slate-700 flex flex-col items-center gap-1 text-center">
+                            <span class="text-xl">🍀</span>
+                            <span class="text-[11px] font-extrabold text-slate-300">Trébol</span>
+                        </button>
+                        <button data-charm="ojoturco" class="charm-btn btn-bubbly p-2.5 rounded-2xl border-2 border-slate-800 bg-slate-900/60 hover:border-slate-700 flex flex-col items-center gap-1 text-center">
+                            <span class="text-xl">🧿</span>
+                            <span class="text-[11px] font-extrabold text-slate-300">Ojo Turco</span>
+                        </button>
+                        <button data-charm="ninguno" class="charm-btn btn-bubbly p-2.5 rounded-2xl border-2 border-slate-800 bg-slate-900/60 hover:border-slate-700 flex flex-col items-center gap-1 text-center">
+                            <span class="text-xl">🚫</span>
+                            <span class="text-[11px] font-extrabold text-slate-300">Sin Dije</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PASO 4: HILO Y METAL -->
+                <div class="glass-card rounded-3xl p-5 flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-extrabold uppercase tracking-wider text-indigo-300 flex items-center gap-2 font-display">
+                            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">4</span>
+                            Colores de Hilo y Acabado Metal
+                        </label>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- Thread Color -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-xs font-bold text-slate-300">Color del Hilo:</label>
+                            <select id="select-hilo" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-800 text-slate-100 text-xs font-bold cursor-pointer focus:border-indigo-500">
+                                <option value="black" selected>🖤 Negro Azabache</option>
+                                <option value="red">❤️ Rojo Pasión</option>
+                                <option value="navy">💙 Azul Marino</option>
+                                <option value="pink">💖 Rosa Pastel</option>
+                                <option value="green">💚 Verde Esmeralda</option>
+                                <option value="neon">💛 Amarillo Neón</option>
+                            </select>
+                        </div>
+
+                        <!-- Metal Finish -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-xs font-bold text-slate-300">Tono del Metal:</label>
+                            <select id="select-metal" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border-2 border-slate-800 text-slate-100 text-xs font-bold cursor-pointer focus:border-indigo-500">
+                                <option value="gold" selected>✨ Dorado 18K</option>
+                                <option value="silver">🥈 Plateado 925</option>
+                                <option value="rosegold">🌸 Rose Gold</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- WHATSAPP ORDER BUTTON -->
+                    <div class="pt-2 border-t border-slate-800 flex flex-col gap-2">
+                        <button id="btn-whatsapp" class="btn-bubbly w-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-white font-extrabold py-4 px-6 rounded-2xl shadow-xl shadow-emerald-950/40 border-2 border-emerald-400/40 flex items-center justify-center gap-3 text-base">
+                            <i class="fa-brands fa-whatsapp text-2xl animate-bounce"></i>
+                            <span id="btn-text">Pedir Diseño por WhatsApp</span>
+                            <i id="btn-spinner" class="fa-solid fa-circle-notch fa-spin hidden text-xl"></i>
+                        </button>
+                        <p class="text-[11px] text-center text-slate-400 font-bold">
+                            <i class="fa-solid fa-wand-magic-sparkles text-amber-400 mr-1"></i> Genera la imagen HD automáticamente para enviarla
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- RIGHT VISUALIZATION CANVAS (7 cols) -->
+            <div class="lg:col-span-7 flex flex-col gap-4 sticky top-24">
+
+                <!-- Studio Top Bar with Working Mode Switcher -->
+                <div class="glass-card rounded-2xl px-5 py-3.5 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span class="text-xs font-extrabold text-slate-100 uppercase tracking-wider font-display">Estudio de Renderizado 3D</span>
+                    </div>
+
+                    <!-- Canvas Theme Switcher -->
+                    <div class="flex items-center gap-1.5 bg-slate-950/80 p-1.5 rounded-2xl border border-slate-800">
+                        <button id="bg-btn-dark" class="btn-bubbly px-3 py-1.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md flex items-center gap-1.5">
+                            <span>🌙</span>
+                            <span>Oscuro</span>
+                        </button>
+                        <button id="bg-btn-light" class="btn-bubbly px-3 py-1.5 rounded-xl text-xs font-extrabold text-slate-400 hover:text-white flex items-center gap-1.5">
+                            <span>☀️</span>
+                            <span>Claro</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Box Container (Target of Theme Switching) -->
+                <div id="preview-container" class="rounded-3xl shadow-2xl border-2 overflow-hidden flex flex-col items-center justify-center p-6 min-h-[560px] relative transition-colors duration-500 canvas-dark">
+                    
+                    <!-- Background Grid Pattern -->
+                    <div id="canvas-grid-bg" class="absolute inset-0 pointer-events-none transition-opacity duration-500 bg-grid-dark"></div>
+
+                    <!-- Theme Mode Active Badge -->
+                    <div class="absolute top-4 left-4 z-20">
+                        <span id="canvas-mode-indicator" class="text-[11px] font-extrabold px-3 py-1 rounded-full bg-slate-950/80 text-indigo-300 border border-slate-800 shadow-md">
+                            🌙 Fondo de Estudio Oscuro
+                        </span>
+                    </div>
+
+                    <!-- Dynamic SVG Canvas -->
+                    <svg viewBox="0 0 1000 620" class="bracelet-svg z-10" id="bracelet-canvas">
+                        <defs>
+                            <!-- Drop Shadow Filters -->
+                            <filter id="shadow-drop" x="-30%" y="-30%" width="160%" height="160%">
+                                <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#000000" flood-opacity="0.5"/>
+                            </filter>
+
+                            <filter id="shadow-ambient" x="-50%" y="-50%" width="200%" height="200%">
+                                <feDropShadow dx="0" dy="28" stdDeviation="18" flood-color="#000000" flood-opacity="0.4"/>
+                            </filter>
+
+                            <!-- Material Spherical Radial Gradients -->
+                            <radialGradient id="mat-lava" cx="35%" cy="30%" r="70%">
+                                <stop offset="0%" stop-color="#71717a" />
+                                <stop offset="35%" stop-color="#3f3f46" />
+                                <stop offset="75%" stop-color="#18181b" />
+                                <stop offset="100%" stop-color="#09090b" />
+                            </radialGradient>
+
+                            <radialGradient id="mat-agate" cx="30%" cy="25%" r="75%">
+                                <stop offset="0%" stop-color="#fca5a5" />
+                                <stop offset="20%" stop-color="#ef4444" />
+                                <stop offset="65%" stop-color="#991b1b" />
+                                <stop offset="100%" stop-color="#450a0a" />
+                            </radialGradient>
+
+                            <radialGradient id="mat-wood" cx="35%" cy="30%" r="70%">
+                                <stop offset="0%" stop-color="#fbbf24" />
+                                <stop offset="45%" stop-color="#b45309" />
+                                <stop offset="85%" stop-color="#78350f" />
+                                <stop offset="100%" stop-color="#451a03" />
+                            </radialGradient>
+
+                            <radialGradient id="mat-turquoise" cx="30%" cy="25%" r="75%">
+                                <stop offset="0%" stop-color="#cffafe" />
+                                <stop offset="30%" stop-color="#06b6d4" />
+                                <stop offset="70%" stop-color="#0e7490" />
+                                <stop offset="100%" stop-color="#164e63" />
+                            </radialGradient>
+
+                            <radialGradient id="mat-gold" cx="30%" cy="25%" r="75%">
+                                <stop offset="0%" stop-color="#fef9c3" />
+                                <stop offset="25%" stop-color="#facc15" />
+                                <stop offset="65%" stop-color="#ca8a04" />
+                                <stop offset="100%" stop-color="#713f12" />
+                            </radialGradient>
+
+                            <radialGradient id="mat-silver" cx="30%" cy="25%" r="75%">
+                                <stop offset="0%" stop-color="#ffffff" />
+                                <stop offset="30%" stop-color="#cbd5e1" />
+                                <stop offset="70%" stop-color="#64748b" />
+                                <stop offset="100%" stop-color="#1e293b" />
+                            </radialGradient>
+
+                            <!-- Metallic Gradients -->
+                            <linearGradient id="metal-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#fef08a" />
+                                <stop offset="25%" stop-color="#eab308" />
+                                <stop offset="50%" stop-color="#fef9c3" />
+                                <stop offset="75%" stop-color="#ca8a04" />
+                                <stop offset="100%" stop-color="#854d0e" />
+                            </linearGradient>
+
+                            <linearGradient id="metal-silver" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#ffffff" />
+                                <stop offset="25%" stop-color="#cbd5e1" />
+                                <stop offset="50%" stop-color="#f8fafc" />
+                                <stop offset="75%" stop-color="#64748b" />
+                                <stop offset="100%" stop-color="#334155" />
+                            </linearGradient>
+
+                            <linearGradient id="metal-rosegold" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#fde8e8" />
+                                <stop offset="25%" stop-color="#fb7185" />
+                                <stop offset="50%" stop-color="#fff1f2" />
+                                <stop offset="75%" stop-color="#e11d48" />
+                                <stop offset="100%" stop-color="#881337" />
+                            </linearGradient>
+
+                            <!-- Thread Colors -->
+                            <linearGradient id="th-black" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#52525b" /><stop offset="100%" stop-color="#09090b" />
+                            </linearGradient>
+                            <linearGradient id="th-red" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#f87171" /><stop offset="100%" stop-color="#991b1b" />
+                            </linearGradient>
+                            <linearGradient id="th-navy" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#60a5fa" /><stop offset="100%" stop-color="#1e3a8a" />
+                            </linearGradient>
+                            <linearGradient id="th-pink" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#f472b6" /><stop offset="100%" stop-color="#be185d" />
+                            </linearGradient>
+                            <linearGradient id="th-green" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#4ade80" /><stop offset="100%" stop-color="#15803d" />
+                            </linearGradient>
+                            <linearGradient id="th-neon" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#facc15" /><stop offset="100%" stop-color="#ca8a04" />
+                            </linearGradient>
+
+                            <!-- Macrame Weave Pattern -->
+                            <pattern id="pat-macrame" width="6" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                                <line x1="0" y1="0" x2="0" y2="10" stroke="rgba(0,0,0,0.3)" stroke-width="2" />
+                            </pattern>
+                        </defs>
+
+                        <!-- Bracelets SVG Layer -->
+                        <g id="bracelets-container"></g>
+                    </svg>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
+
+    <!-- 
+      SI DESEAS USAR UN ARCHIVO EXTERNO PARA ENTORNO LOCAL:
+      <script src="script.js"></script>
+    -->
+
+    <script>
+        /* ==========================================================================
+           ARCHIVO: script.js
+           ========================================================================== */
+
+        document.addEventListener("DOMContentLoaded", () => {
+
+            // Application Central State
+            const state = {
+                mode: 'single', // 'single' or 'couple'
+                target: 'both', // 'both', '1', '2'
+                theme: 'dark',  // 'dark' or 'light'
+                bracelets: {
+                    1: { style: 'pepitas', count: 14, spacing: 'balines', charm: 'moneda', material: 'lava', thread: 'black', metal: 'gold' },
+                    2: { style: 'pepitas', count: 14, spacing: 'balines', charm: 'corazon', material: 'agate', thread: 'red', metal: 'silver' }
+                }
+            };
+
+            const materialLabels = {
+                lava: 'Piedra Volcánica (Mate)',
+                agate: 'Ágata Neopreno (Rojo Brillante)',
+                wood: 'Madera Pulida',
+                turquoise: 'Turquesa Mística',
+                gold: 'Oro 18K',
+                silver: 'Plata Ley 925'
+            };
+
+            // DOM UI References
+            const ui = {
+                btnSingle: document.getElementById('btn-mode-single'),
+                btnCouple: document.getElementById('btn-mode-couple'),
+                targetContainer: document.getElementById('target-select-container'),
+                targetBadge: document.getElementById('target-indicator-badge'),
+                targetBtns: document.querySelectorAll('.target-btn'),
+
+                btnStylePepitas: document.getElementById('btn-style-pepitas'),
+                btnStyleHilo: document.getElementById('btn-style-hilo'),
+                btnStyleTejido: document.getElementById('btn-style-tejido'),
+                beadsControls: document.getElementById('beads-controls'),
+
+                sliderCount: document.getElementById('slider-cantidad'),
+                badgeCount: document.getElementById('badge-cantidad'),
+                btnCountMinus: document.getElementById('btn-count-minus'),
+                btnCountPlus: document.getElementById('btn-count-plus'),
+                selectSpacing: document.getElementById('select-espaciado'),
+                
+                charmBtns: document.querySelectorAll('.charm-btn'),
+                selectThread: document.getElementById('select-hilo'),
+                selectMetal: document.getElementById('select-metal'),
+                materialNameLbl: document.getElementById('material-name-lbl'),
+                materialBtns: document.querySelectorAll('.mat-btn'),
+
+                btnReset: document.getElementById('btn-reset-all'),
+                btnBgDark: document.getElementById('bg-btn-dark'),
+                btnBgLight: document.getElementById('bg-btn-light'),
+                previewContainer: document.getElementById('preview-container'),
+                modeIndicator: document.getElementById('canvas-mode-indicator'),
+                gridBg: document.getElementById('canvas-grid-bg'),
+                containerSVG: document.getElementById('bracelets-container'),
+                btnExport: document.getElementById('btn-whatsapp')
+            };
+
+            // Geometry Constants
+            const BEAD_R = 15;
+            const SPACER_R = 6;
+            const RX = 230;
+            const RY = 130;
+
+
+            // 1. Mode Switcher (Single vs Couple)
+            ui.btnSingle.addEventListener('click', () => setMode('single'));
+            ui.btnCouple.addEventListener('click', () => setMode('couple'));
+
+            function setMode(mode) {
+                state.mode = mode;
+                if (mode === 'single') {
+                    ui.btnSingle.className = "btn-bubbly py-3 px-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-lg shadow-indigo-600/30";
+                    ui.btnCouple.className = "btn-bubbly py-3 px-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 text-slate-400 hover:text-white";
+                    ui.targetContainer.classList.add('hidden');
+                    state.target = 'both';
+                } else {
+                    ui.btnCouple.className = "btn-bubbly py-3 px-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 bg-pink-600 text-white shadow-lg shadow-pink-600/30";
+                    ui.btnSingle.className = "btn-bubbly py-3 px-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 text-slate-400 hover:text-white";
+                    ui.targetContainer.classList.remove('hidden');
+                    ui.targetContainer.classList.add('flex');
+                }
+                updateTargetUI();
+                updateControlsFromState();
+                renderCanvas();
+            }
+
+            // 2. Target Switcher in Couple Mode
+            ui.targetBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const target = btn.dataset.target;
+                    state.target = target;
+                    if (target === 'both') {
+                        state.bracelets[2] = JSON.parse(JSON.stringify(state.bracelets[1]));
+                        showToast("Diseños sincronizados para ambas pulseras");
+                    }
+                    updateTargetUI();
+                    updateControlsFromState();
+                    renderCanvas();
+                });
+            });
+
+            function updateTargetUI() {
+                ui.targetBtns.forEach(btn => {
+                    if (btn.dataset.target === state.target) {
+                        btn.className = "target-btn btn-bubbly active py-2.5 px-2 rounded-xl border-2 text-xs font-extrabold flex flex-col items-center gap-1 bg-indigo-600/20 border-indigo-500 text-white shadow-md";
+                    } else {
+                        btn.className = "target-btn btn-bubbly py-2.5 px-2 rounded-xl border-2 text-xs font-extrabold flex flex-col items-center gap-1 bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700";
+                    }
+                });
+
+                if (state.target === 'both') ui.targetBadge.textContent = "Editando Ambas";
+                else if (state.target === '1') ui.targetBadge.textContent = "Editando Pulsera 1";
+                else ui.targetBadge.textContent = "Editando Pulsera 2";
+            }
+
+            // 3. Canvas Background Theme Switcher
+            ui.btnBgDark.addEventListener('click', () => toggleCanvasTheme('dark'));
+            ui.btnBgLight.addEventListener('click', () => toggleCanvasTheme('light'));
+
+            function toggleCanvasTheme(theme) {
+                state.theme = theme;
+                if (theme === 'dark') {
+                    // Cambiar clases del contenedor principal
+                    ui.previewContainer.classList.remove('canvas-light');
+                    ui.previewContainer.classList.add('canvas-dark');
+                    
+                    // Cambiar clases de la cuadrícula
+                    ui.gridBg.classList.remove('bg-grid-light');
+                    ui.gridBg.classList.add('bg-grid-dark');
+
+                    // Estilos del botón activo (Oscuro)
+                    ui.btnBgDark.className = "btn-bubbly px-3 py-1.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md flex items-center gap-1.5";
+                    ui.btnBgLight.className = "btn-bubbly px-3 py-1.5 rounded-xl text-xs font-extrabold text-slate-400 hover:text-white flex items-center gap-1.5";
+                    
+                    // Actualizar la etiqueta indicadora
+                    ui.modeIndicator.textContent = "🌙 Fondo de Estudio Oscuro";
+                    ui.modeIndicator.className = "text-[11px] font-extrabold px-3 py-1 rounded-full bg-slate-950/80 text-indigo-300 border border-slate-800 shadow-md";
+                } else {
+                    // Cambiar clases del contenedor principal
+                    ui.previewContainer.classList.remove('canvas-dark');
+                    ui.previewContainer.classList.add('canvas-light');
+                    
+                    // Cambiar clases de la cuadrícula
+                    ui.gridBg.classList.remove('bg-grid-dark');
+                    ui.gridBg.classList.add('bg-grid-light');
+
+                    // Estilos del botón activo (Claro)
+                    ui.btnBgLight.className = "btn-bubbly px-3 py-1.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md flex items-center gap-1.5";
+                    ui.btnBgDark.className = "btn-bubbly px-3 py-1.5 rounded-xl text-xs font-extrabold text-slate-500 hover:text-slate-800 flex items-center gap-1.5";
+                    
+                    // Actualizar la etiqueta indicadora
+                    ui.modeIndicator.textContent = "☀️ Fondo de Estudio Claro";
+                    ui.modeIndicator.className = "text-[11px] font-extrabold px-3 py-1 rounded-full bg-white/90 text-slate-800 border border-slate-300 shadow-md";
+                }
+                renderCanvas();
+            }
+
+            // 4. Style, Material and Charm Controls
+            ui.btnStylePepitas.addEventListener('click', () => updateStateValue('style', 'pepitas'));
+            ui.btnStyleHilo.addEventListener('click', () => updateStateValue('style', 'hilo'));
+            ui.btnStyleTejido.addEventListener('click', () => updateStateValue('style', 'tejido'));
+
+            ui.materialBtns.forEach(btn => {
+                btn.addEventListener('click', () => updateStateValue('material', btn.dataset.mat));
+            });
+
+            ui.charmBtns.forEach(btn => {
+                btn.addEventListener('click', () => updateStateValue('charm', btn.dataset.charm));
+            });
+
+            ui.btnCountMinus.addEventListener('click', () => {
+                const current = parseInt(ui.sliderCount.value);
+                if (current > 0) updateStateValue('count', current - 2);
+            });
+
+            ui.btnCountPlus.addEventListener('click', () => {
+                const current = parseInt(ui.sliderCount.value);
+                if (current < 28) updateStateValue('count', current + 2);
+            });
+
+            ui.sliderCount.addEventListener('input', (e) => updateStateValue('count', parseInt(e.target.value)));
+            ui.selectSpacing.addEventListener('change', (e) => updateStateValue('spacing', e.target.value));
+            ui.selectThread.addEventListener('change', (e) => updateStateValue('thread', e.target.value));
+            ui.selectMetal.addEventListener('change', (e) => updateStateValue('metal', e.target.value));
+
+            // Reset All Designs
+            ui.btnReset.addEventListener('click', () => {
+                state.bracelets[1] = { style: 'pepitas', count: 14, spacing: 'balines', charm: 'moneda', material: 'lava', thread: 'black', metal: 'gold' };
+                state.bracelets[2] = { style: 'pepitas', count: 14, spacing: 'balines', charm: 'corazon', material: 'agate', thread: 'red', metal: 'silver' };
+                setMode('single');
+                showToast("Diseño restablecido con éxito");
+            });
+
+            function updateStateValue(key, value) {
+                if (state.mode === 'single' || state.target === 'both') {
+                    state.bracelets[1][key] = value;
+                    state.bracelets[2][key] = value;
+                } else {
+                    state.bracelets[state.target][key] = value;
+                }
+                updateControlsFromState();
+                renderCanvas();
+            }
+
+            function updateControlsFromState() {
+                const activeId = (state.mode === 'single' || state.target === 'both') ? 1 : state.target;
+                const config = state.bracelets[activeId];
+
+                const activeClass = "btn-bubbly py-3 px-1 rounded-2xl border-2 font-extrabold flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-600/25";
+                const inactiveClass = "btn-bubbly py-3 px-1 rounded-2xl border-2 font-extrabold flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white";
+
+                if (config.style === 'pepitas') {
+                    ui.btnStylePepitas.className = activeClass;
+                    ui.btnStyleHilo.className = inactiveClass;
+                    ui.btnStyleTejido.className = inactiveClass;
+                    ui.beadsControls.style.display = "flex";
+                } else if (config.style === 'hilo') {
+                    ui.btnStyleHilo.className = activeClass;
+                    ui.btnStylePepitas.className = inactiveClass;
+                    ui.btnStyleTejido.className = inactiveClass;
+                    ui.beadsControls.style.display = "none";
+                } else if (config.style === 'tejido') {
+                    ui.btnStyleTejido.className = activeClass;
+                    ui.btnStylePepitas.className = inactiveClass;
+                    ui.btnStyleHilo.className = inactiveClass;
+                    ui.beadsControls.style.display = "flex"; // Mostramos los controles para permitir pulsera tejida con algunas pepitas/dije
+                }
+
+                ui.sliderCount.value = config.count;
+                ui.badgeCount.textContent = config.count;
+                ui.selectSpacing.value = config.spacing;
+                ui.selectThread.value = config.thread;
+                ui.selectMetal.value = config.metal;
+                ui.materialNameLbl.textContent = materialLabels[config.material] || config.material;
+
+                ui.materialBtns.forEach(btn => {
+                    if (btn.dataset.mat === config.material) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                });
+
+                ui.charmBtns.forEach(btn => {
+                    if (btn.dataset.charm === config.charm) {
+                        btn.className = "charm-btn btn-bubbly active p-2.5 rounded-2xl border-2 border-indigo-500 bg-indigo-600/20 flex flex-col items-center gap-1 text-center";
+                    } else {
+                        btn.className = "charm-btn btn-bubbly p-2.5 rounded-2xl border-2 border-slate-800 bg-slate-900/60 hover:border-slate-700 flex flex-col items-center gap-1 text-center";
+                    }
+                });
+            }
+
+
+            function getEllipsePoint(cx, cy, angle) {
+                return {
+                    x: cx + RX * Math.cos(angle),
+                    y: cy + RY * Math.sin(angle)
+                };
+            }
+
+            function renderBraceletSVG(id, cx, cy, config, labelText) {
+                const { style, count, spacing, charm, material, thread, metal } = config;
+
+                const matColor = `url(#mat-${material})`;
+                const threadColor = `url(#th-${thread})`;
+                const metalColor = `url(#metal-${metal})`;
+                const hasCharm = charm !== 'ninguno';
+                const actualCount = style === 'hilo' ? 0 : count;
+
+                let svg = `<g class="bracelet-group bracelet-${id}" filter="url(#shadow-ambient)">`;
+
+                if (labelText) {
+                    svg += `<text x="${cx}" y="${cy - RY - 40}" text-anchor="middle" fill="${state.theme === 'dark' ? '#cbd5e1' : '#334155'}" font-size="16" font-weight="900" font-family="Fredoka, sans-serif" letter-spacing="1">${labelText}</text>`;
+                }
+
+                svg += `<ellipse cx="${cx}" cy="${cy + RY + 25}" rx="${RX - 15}" ry="22" fill="rgba(0,0,0,0.22)" filter="blur(10px)" />`;
+
+                if (style === 'tejido') {
+                    const w = 15;
+                    // Base color and shadow para el hilo tejido (grueso)
+                    svg += `<ellipse cx="${cx}" cy="${cy}" rx="${RX}" ry="${RY}" fill="none" stroke="${threadColor}" stroke-width="${w}" filter="url(#shadow-drop)"/>`;
+                    
+                    // Efecto visual de nudo plano (macramé) superponiendo texturas punteadas
+                    svg += `<ellipse cx="${cx}" cy="${cy}" rx="${RX}" ry="${RY}" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="${w}" stroke-dasharray="7 7" />`;
+                    svg += `<ellipse cx="${cx}" cy="${cy}" rx="${RX}" ry="${RY}" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="${w}" stroke-dasharray="7 7" stroke-dashoffset="7" />`;
+                    
+                    // Núcleo central del tejido
+                    svg += `<ellipse cx="${cx}" cy="${cy}" rx="${RX}" ry="${RY}" fill="none" stroke="${threadColor}" stroke-width="${w-4}" />`;
+                    svg += `<ellipse cx="${cx}" cy="${cy}" rx="${RX}" ry="${RY}" fill="none" stroke="rgba(0,0,0,0.25)" stroke-width="${w-4}" stroke-dasharray="3 4" stroke-dashoffset="1" />`;
+                    svg += `<ellipse cx="${cx}" cy="${cy}" rx="${RX}" ry="${RY}" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="${w-6}" stroke-dasharray="3 4" stroke-dashoffset="3" />`;
+                } else {
+                    // Hilo liso normal (usado para base de pepitas o para 'solo hilo')
+                    const threadWidth = style === 'hilo' ? 7 : 4.5;
+                    svg += `<ellipse cx="${cx}" cy="${cy}" rx="${RX}" ry="${RY}" fill="none" stroke="${threadColor}" stroke-width="${threadWidth}" filter="url(#shadow-drop)"/>`;
+
+                    if (style === 'hilo') {
+                        svg += `<ellipse cx="${cx}" cy="${cy}" rx="${RX}" ry="${RY}" fill="none" stroke="url(#pat-macrame)" stroke-width="${threadWidth}" filter="url(#shadow-drop)"/>`;
+                    }
+                }
+
+                // Adjuster Knot (Top)
+                const knotWidth = style === 'tejido' ? 70 : 64;
+                const knotHeight = style === 'tejido' ? 22 : 18;
+                
+                svg += `
+                    <g filter="url(#shadow-drop)">
+                        <rect x="${cx - knotWidth/2}" y="${cy - RY - (knotHeight/2)}" width="${knotWidth}" height="${knotHeight}" rx="9" fill="${threadColor}" />`;
+                        
+                if (style === 'tejido') {
+                    // Textura tejida también para el nudo de ajuste superior
+                    svg += `<rect x="${cx - knotWidth/2}" y="${cy - RY - (knotHeight/2)}" width="${knotWidth}" height="${knotHeight}" rx="9" fill="transparent" stroke="rgba(0,0,0,0.4)" stroke-width="3" stroke-dasharray="4 3" />`;
+                } else {
+                    svg += `<rect x="${cx - knotWidth/2}" y="${cy - RY - (knotHeight/2)}" width="${knotWidth}" height="${knotHeight}" rx="9" fill="url(#pat-macrame)" />`;
+                }
+
+                svg += `
+                        <path d="M ${cx - 15} ${cy - RY} C ${cx - 70} ${cy - RY + 35}, ${cx - 140} ${cy - RY - 15}, ${cx - 170} ${cy - RY + 45}" fill="none" stroke="${threadColor}" stroke-width="4.5" stroke-linecap="round"/>
+                        <circle cx="${cx - 170}" cy="${cy - RY + 45}" r="6" fill="${metalColor}" />
+                        
+                        <path d="M ${cx + 15} ${cy - RY} C ${cx + 70} ${cy - RY + 35}, ${cx + 140} ${cy - RY - 15}, ${cx + 170} ${cy - RY + 45}" fill="none" stroke="${threadColor}" stroke-width="4.5" stroke-linecap="round"/>
+                        <circle cx="${cx + 170}" cy="${cy - RY + 45}" r="6" fill="${metalColor}" />
+                    </g>
+                `;
+
+                // Calculate Bead Positions
+                let angleStep = 0;
+                if (spacing === 'unidas') angleStep = (BEAD_R * 2 - 1) / RX;
+                else if (spacing === 'separadas') angleStep = (BEAD_R * 2 + 14) / RX;
+                else if (spacing === 'balines') angleStep = (BEAD_R * 2 + SPACER_R * 2 + 2) / RX;
+
+                let beadAngles = [];
+                let spacerAngles = [];
+
+                if (actualCount > 0) {
+                    if (!hasCharm) {
+                        for (let i = 0; i < actualCount; i++) {
+                            let idx = i - (actualCount - 1) / 2;
+                            let angle = Math.PI / 2 + idx * angleStep;
+                            beadAngles.push(angle);
+                            if (spacing === 'balines' && i < actualCount - 1) {
+                                spacerAngles.push(Math.PI / 2 + (idx + 0.5) * angleStep);
+                            }
+                        }
+                    } else {
+                        let charmGap = 36 / RX;
+                        let leftCount = Math.floor(actualCount / 2);
+                        let rightCount = Math.ceil(actualCount / 2);
+
+                        let rightStart = Math.PI / 2 - charmGap;
+                        for (let i = 0; i < rightCount; i++) {
+                            let angle = rightStart - i * angleStep;
+                            beadAngles.push(angle);
+                            if (spacing === 'balines' && i < rightCount - 1) spacerAngles.push(angle - angleStep / 2);
+                        }
+                        if (spacing === 'balines' && rightCount > 0) spacerAngles.push(rightStart + angleStep / 2);
+
+                        let leftStart = Math.PI / 2 + charmGap;
+                        for (let i = 0; i < leftCount; i++) {
+                            let angle = leftStart + i * angleStep;
+                            beadAngles.push(angle);
+                            if (spacing === 'balines' && i < leftCount - 1) spacerAngles.push(angle + angleStep / 2);
+                        }
+                        if (spacing === 'balines' && leftCount > 0) spacerAngles.push(leftStart - angleStep / 2);
+                    }
+                }
+
+                // Render Spherical Beads
+                beadAngles.forEach(angle => {
+                    let p = getEllipsePoint(cx, cy, angle);
+                    svg += `<circle cx="${p.x}" cy="${p.y}" r="${BEAD_R}" fill="${matColor}" filter="url(#shadow-drop)" />`;
+                });
+
+                // Render Metallic Spacers
+                spacerAngles.forEach(angle => {
+                    let p = getEllipsePoint(cx, cy, angle);
+                    svg += `<circle cx="${p.x}" cy="${p.y}" r="${SPACER_R}" fill="${metalColor}" filter="url(#shadow-drop)" />`;
+                });
+
+                // Render Charm
+                if (hasCharm) {
+                    let p = getEllipsePoint(cx, cy, Math.PI / 2);
+                    let ringOffset = actualCount === 0 ? 10 : 20;
+
+                    svg += `<circle cx="${p.x - ringOffset}" cy="${p.y}" r="5.5" fill="none" stroke="${metalColor}" stroke-width="3" filter="url(#shadow-drop)"/>`;
+                    svg += `<circle cx="${p.x + ringOffset}" cy="${p.y}" r="5.5" fill="none" stroke="${metalColor}" stroke-width="3" filter="url(#shadow-drop)"/>`;
+
+                    svg += `<g filter="url(#shadow-drop)">`;
+
+                    if (charm === 'moneda') {
+                        svg += `
+                            <circle cx="${p.x}" cy="${p.y + 4}" r="25" fill="${metalColor}" />
+                            <circle cx="${p.x}" cy="${p.y + 4}" r="21" fill="none" stroke="rgba(0,0,0,0.25)" stroke-width="1.5" />
+                            <path d="M ${p.x - 5} ${p.y - 8} L ${p.x + 5} ${p.y - 8} L ${p.x + 5} ${p.y + 16} L ${p.x - 5} ${p.y + 16} Z" fill="rgba(0,0,0,0.2)" />
+                            <path d="M ${p.x - 12} ${p.y} L ${p.x + 12} ${p.y} L ${p.x + 12} ${p.y + 8} L ${p.x - 12} ${p.y + 8} Z" fill="rgba(0,0,0,0.2)" />
+                        `;
+                    } else if (charm === 'corazon') {
+                        svg += `
+                            <path d="M ${p.x} ${p.y - 4} 
+                                     C ${p.x - 24} ${p.y - 26}, ${p.x - 34} ${p.y + 8}, ${p.x} ${p.y + 28} 
+                                     C ${p.x + 34} ${p.y + 8}, ${p.x + 24} ${p.y - 26}, ${p.x} ${p.y - 4} Z" 
+                                  fill="${metalColor}" />
+                        `;
+                    } else if (charm === 'cruz') {
+                        svg += `
+                            <rect x="${p.x - 5}" y="${p.y - 18}" width="10" height="42" rx="3" fill="${metalColor}" />
+                            <rect x="${p.x - 16}" y="${p.y - 8}" width="32" height="10" rx="3" fill="${metalColor}" />
+                        `;
+                    } else if (charm === 'estrella') {
+                        svg += `
+                            <path d="M ${p.x} ${p.y - 20} 
+                                     L ${p.x + 6} ${p.y - 6} 
+                                     L ${p.x + 20} ${p.y - 4} 
+                                     L ${p.x + 9} ${p.y + 6} 
+                                     L ${p.x + 13} ${p.y + 20} 
+                                     L ${p.x} ${p.y + 11} 
+                                     L ${p.x - 13} ${p.y + 20} 
+                                     L ${p.x - 9} ${p.y + 6} 
+                                     L ${p.x - 20} ${p.y - 4} 
+                                     L ${p.x - 6} ${p.y - 6} Z" 
+                                  fill="${metalColor}" />
+                        `;
+                    } else if (charm === 'infinito') {
+                        svg += `
+                            <path d="M ${p.x - 14} ${p.y + 4} C ${p.x - 28} ${p.y + 4}, ${p.x - 28} ${p.y + 22}, ${p.x - 14} ${p.y + 22} C ${p.x} ${p.y + 22}, ${p.x} ${p.y + 4}, ${p.x + 14} ${p.y + 4} C ${p.x + 28} ${p.y + 4}, ${p.x + 28} ${p.y + 22}, ${p.x + 14} ${p.y + 22} C ${p.x} ${p.y + 22}, ${p.x} ${p.y + 4}, ${p.x - 14} ${p.y + 4}" 
+                                  fill="none" stroke="${metalColor}" stroke-width="9" stroke-linecap="round" />
+                        `;
+                    } else if (charm === 'trebol') {
+                        svg += `
+                            <circle cx="${p.x - 8}" cy="${p.y + 2}" r="8" fill="${metalColor}" />
+                            <circle cx="${p.x + 8}" cy="${p.y + 2}" r="8" fill="${metalColor}" />
+                            <circle cx="${p.x}" cy="${p.y - 6}" r="8" fill="${metalColor}" />
+                            <circle cx="${p.x}" cy="${p.y + 10}" r="8" fill="${metalColor}" />
+                            <rect x="${p.x - 2}" y="${p.y + 8}" width="4" height="14" rx="2" fill="${metalColor}" />
+                        `;
+                    } else if (charm === 'ojoturco') {
+                        svg += `
+                            <circle cx="${p.x}" cy="${p.y + 4}" r="22" fill="#1e40af" />
+                            <circle cx="${p.x}" cy="${p.y + 4}" r="16" fill="#ffffff" />
+                            <circle cx="${p.x}" cy="${p.y + 4}" r="10" fill="#06b6d4" />
+                            <circle cx="${p.x}" cy="${p.y + 4}" r="5" fill="#0f172a" />
+                        `;
+                    }
+
+                    svg += `</g>`;
+                }
+
+                svg += `</g>`;
+                return svg;
+            }
+
+            function renderCanvas() {
+                let html = '';
+                if (state.mode === 'single') {
+                    html = renderBraceletSVG(1, 500, 290, state.bracelets[1], null);
+                } else {
+                    html = renderBraceletSVG(1, 260, 290, state.bracelets[1], 'PULSERA 1');
+                    html += renderBraceletSVG(2, 740, 290, state.bracelets[2], 'PULSERA 2');
+                }
+                ui.containerSVG.innerHTML = html;
+            }
+
+
+            const btnText = document.getElementById('btn-text');
+            const btnSpinner = document.getElementById('btn-spinner');
+
+            ui.btnExport.addEventListener('click', async () => {
+                ui.btnExport.disabled = true;
+                btnText.textContent = 'Generando Imagen HD...';
+                btnSpinner.classList.remove('hidden');
+
+                try {
+                    await new Promise(r => setTimeout(r, 150));
+
+                    const canvas = await html2canvas(ui.previewContainer, {
+                        scale: 2,
+                        useCORS: true,
+                        logging: false
+                    });
+
+                    canvas.toBlob(async (blob) => {
+                        const isCouple = state.mode === 'couple';
+                        let summaryMsg = `¡Hola EstudioPro! 👋 Crie este pedido personalizado:\n\n`;
+
+                        if (isCouple) {
+                            summaryMsg += `💕 *Juego de Parejas:*\n`;
+                            summaryMsg += `- *Pulsera 1:* ${state.bracelets[1].count} pepitas (${materialLabels[state.bracelets[1].material]}), Dije: ${state.bracelets[1].charm}, Hilo: ${state.bracelets[1].thread}.\n`;
+                            summaryMsg += `- *Pulsera 2:* ${state.bracelets[2].count} pepitas (${materialLabels[state.bracelets[2].material]}), Dije: ${state.bracelets[2].charm}, Hilo: ${state.bracelets[2].thread}.\n`;
+                        } else {
+                            summaryMsg += `✨ *Pulsera Individual:*\n`;
+                            summaryMsg += `- Material: ${materialLabels[state.bracelets[1].material]}\n`;
+                            summaryMsg += `- Cantidad: ${state.bracelets[1].count} Pepitas\n`;
+                            summaryMsg += `- Dije Central: ${state.bracelets[1].charm}\n`;
+                            summaryMsg += `- Hilo: ${state.bracelets[1].thread} | Metal: ${state.bracelets[1].metal}\n`;
+                        }
+
+                        const file = new File([blob], 'mi-pulsera-estudiopro.png', { type: 'image/png' });
+
+                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                            try {
+                                await navigator.share({
+                                    title: 'Mi Pulsera Personalizada EstudioPro',
+                                    text: summaryMsg,
+                                    files: [file]
+                                });
+                                showToast("¡Abriendo opciones para enviar tu pedido!");
+                            } catch (e) {
+                                fallbackDownload(blob, summaryMsg);
+                            }
+                        } else {
+                            fallbackDownload(blob, summaryMsg);
+                        }
+                        resetExportBtn();
+                    }, 'image/png');
+
+                } catch (err) {
+                    console.error(err);
+                    showToast("Error al exportar la imagen", true);
+                    resetExportBtn();
+                }
+            });
+
+            function fallbackDownload(blob, msg) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'diseno-pulsera-estudiopro.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast("Imagen HD descargada. Abriendo WhatsApp...");
+
+                setTimeout(() => {
+                    window.open(`https://wa.me/?text=${encodeURIComponent(msg + "\n(Adjunto la imagen descargada con mi pedido)")}`, '_blank');
+                }, 1000);
+            }
+
+            function resetExportBtn() {
+                ui.btnExport.disabled = false;
+                btnText.textContent = 'Pedir Diseño por WhatsApp';
+                btnSpinner.classList.add('hidden');
+            }
+
+            function showToast(message, error = false) {
+                const tc = document.getElementById('toast-container');
+                const t = document.createElement('div');
+                t.className = `toast ${error ? 'border-red-500' : 'border-indigo-500'}`;
+                t.innerHTML = `
+                    <i class="fa-solid ${error ? 'fa-circle-xmark text-red-400' : 'fa-circle-check text-emerald-400'} text-xl"></i>
+                    <span>${message}</span>
+                `;
+                tc.appendChild(t);
+                setTimeout(() => t.classList.add('show'), 10);
+                setTimeout(() => {
+                    t.classList.remove('show');
+                    setTimeout(() => t.remove(), 3500);
+                }, 3500);
+            }
+
+            // Initial Execution
+            updateControlsFromState();
+            renderCanvas();
+        });
+    </script>
+</body>
+</html>
